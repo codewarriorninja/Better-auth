@@ -14,23 +14,20 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { signInFormSchema } from "@/lib/auth-schema"
 
-const formSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8).max(100),
-});
 
 
 const SignIn = () => {
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const form = useForm<z.infer<typeof signInFormSchema>>({
+        resolver: zodResolver(signInFormSchema),
         defaultValues: {
           email:"",
           password:"",
         },
       })
      
-      function onSubmit(values: z.infer<typeof formSchema>) {
+      function onSubmit(values: z.infer<typeof signInFormSchema>) {
         console.log(values)
       }
 
