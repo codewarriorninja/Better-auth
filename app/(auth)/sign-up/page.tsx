@@ -16,10 +16,14 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { formSchema } from "@/lib/auth-schema"
-
+import { authClient } from "@/lib/auth-client"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 
 const SignUp = () => {
+  const router = useRouter();
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -29,8 +33,28 @@ const SignUp = () => {
         },
       })
      
-      function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+      async function onSubmit(values: z.infer<typeof formSchema>) {
+        const {name, email, password} = values;
+        const {data, error} = await authClient.signUp.email({
+          name, 
+          email, 
+          password, 
+        },{
+          onRequest:(ctx) => {
+            toast('Please wait......');
+            console.log(ctx);
+          },
+          onSuccess:(ctx) =>{
+            form.reset();
+            toast('Successfuly Signed up');
+            console.log(ctx);
+            router.push('/sign-in')
+          },
+          onError:(ctx) =>{
+            console.log(ctx)
+          }
+        })
+        console.log(data,error)
       }
 
   return (
@@ -83,7 +107,7 @@ const SignUp = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="cursor-pointer">Submit</Button>
+        <Button type="submit" className="w-full cursor-pointer">Submit</Button>
       </form>
     </Form>
         </CardContent>

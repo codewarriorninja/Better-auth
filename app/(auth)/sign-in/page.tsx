@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { signInFormSchema } from "@/lib/auth-schema"
-
-
+import { authClient } from "@/lib/auth-client"
+import { toast } from "sonner"
 
 const SignIn = () => {
     const form = useForm<z.infer<typeof signInFormSchema>>({
@@ -27,8 +27,27 @@ const SignIn = () => {
         },
       })
      
-      function onSubmit(values: z.infer<typeof signInFormSchema>) {
-        console.log(values)
+      async function onSubmit(values: z.infer<typeof signInFormSchema>) {
+        const {email, password} = values;
+        const {data, error} = await authClient.signIn.email({
+          email, 
+          password, 
+          callbackURL:'/dashboard'
+        },{
+          onRequest:(ctx) => {
+            toast('Please wait......');
+            console.log(ctx);
+          },
+          onSuccess:(ctx) =>{
+            form.reset();
+            toast('Successfuly Logged in');
+            console.log(ctx);
+          },
+          onError:(ctx) =>{
+            toast(`${ctx}`);
+          }
+        })
+        console.log(data,error)
       }
 
   return (
@@ -68,7 +87,7 @@ const SignIn = () => {
             </FormItem>
           )}
         />
-        <Button type="submit" className="cursor-pointer">Submit</Button>
+        <Button type="submit" className="w-full cursor-pointer">Submit</Button>
       </form>
     </Form>
         </CardContent>
